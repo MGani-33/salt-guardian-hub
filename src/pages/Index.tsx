@@ -13,6 +13,16 @@ const Index = () => {
     { name: "Wazuh Agent", currentVersion: "4.7.1", latestVersion: "4.7.2", updateAvailable: true },
     { name: "ClamAV", currentVersion: "1.2.1", latestVersion: "1.2.1", updateAvailable: false },
     { name: "System Kernel", currentVersion: "5.15.0-91", latestVersion: "5.15.0-91", updateAvailable: false },
+    { name: "Google Chrome", currentVersion: "120.0.6099.109", latestVersion: "121.0.6167.85", updateAvailable: true },
+    { name: "Visual Studio Code", currentVersion: "1.85.1", latestVersion: "1.86.0", updateAvailable: true },
+    { name: "Mozilla Firefox", currentVersion: "121.0", latestVersion: "121.0", updateAvailable: false },
+    { name: "Docker", currentVersion: "24.0.7", latestVersion: "25.0.0", updateAvailable: true },
+    { name: "Node.js", currentVersion: "20.10.0", latestVersion: "20.11.0", updateAvailable: true },
+    { name: "Python", currentVersion: "3.11.6", latestVersion: "3.12.1", updateAvailable: true },
+    { name: "Git", currentVersion: "2.43.0", latestVersion: "2.43.0", updateAvailable: false },
+    { name: "OpenSSH", currentVersion: "9.5p1", latestVersion: "9.6p1", updateAvailable: true },
+    { name: "Nginx", currentVersion: "1.24.0", latestVersion: "1.24.0", updateAvailable: false },
+    { name: "PostgreSQL", currentVersion: "16.1", latestVersion: "16.1", updateAvailable: false },
   ];
 
   const handleRefresh = () => {
