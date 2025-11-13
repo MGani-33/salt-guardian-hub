@@ -14,7 +14,256 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      system_applications: {
+        Row: {
+          app_name: string
+          category: string | null
+          current_version: string
+          id: string
+          latest_version: string | null
+          size: string | null
+          system_id: string
+          update_available: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          app_name: string
+          category?: string | null
+          current_version: string
+          id?: string
+          latest_version?: string | null
+          size?: string | null
+          system_id: string
+          update_available?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          app_name?: string
+          category?: string | null
+          current_version?: string
+          id?: string
+          latest_version?: string | null
+          size?: string | null
+          system_id?: string
+          update_available?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_applications_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_hardware: {
+        Row: {
+          cpu_cores: number | null
+          cpu_frequency: string | null
+          cpu_model: string | null
+          cpu_threads: number | null
+          gpu_memory: string | null
+          gpu_model: string | null
+          id: string
+          memory_total: string | null
+          memory_type: string | null
+          memory_used: string | null
+          system_id: string
+          updated_at: string
+        }
+        Insert: {
+          cpu_cores?: number | null
+          cpu_frequency?: string | null
+          cpu_model?: string | null
+          cpu_threads?: number | null
+          gpu_memory?: string | null
+          gpu_model?: string | null
+          id?: string
+          memory_total?: string | null
+          memory_type?: string | null
+          memory_used?: string | null
+          system_id: string
+          updated_at?: string
+        }
+        Update: {
+          cpu_cores?: number | null
+          cpu_frequency?: string | null
+          cpu_model?: string | null
+          cpu_threads?: number | null
+          gpu_memory?: string | null
+          gpu_model?: string | null
+          id?: string
+          memory_total?: string | null
+          memory_type?: string | null
+          memory_used?: string | null
+          system_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_hardware_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_network: {
+        Row: {
+          id: string
+          interface_name: string
+          ip_address: string | null
+          mac_address: string | null
+          speed: string | null
+          status: string | null
+          system_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          interface_name: string
+          ip_address?: string | null
+          mac_address?: string | null
+          speed?: string | null
+          status?: string | null
+          system_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          interface_name?: string
+          ip_address?: string | null
+          mac_address?: string | null
+          speed?: string | null
+          status?: string | null
+          system_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_network_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_services: {
+        Row: {
+          description: string | null
+          id: string
+          service_name: string
+          status: string
+          system_id: string
+          updated_at: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          service_name: string
+          status: string
+          system_id: string
+          updated_at?: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          service_name?: string
+          status?: string
+          system_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_services_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_storage: {
+        Row: {
+          device: string
+          id: string
+          mount_point: string | null
+          size: string | null
+          system_id: string
+          type: string | null
+          updated_at: string
+          used: string | null
+        }
+        Insert: {
+          device: string
+          id?: string
+          mount_point?: string | null
+          size?: string | null
+          system_id: string
+          type?: string | null
+          updated_at?: string
+          used?: string | null
+        }
+        Update: {
+          device?: string
+          id?: string
+          mount_point?: string | null
+          size?: string | null
+          system_id?: string
+          type?: string | null
+          updated_at?: string
+          used?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_storage_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      systems: {
+        Row: {
+          created_at: string
+          hostname: string
+          id: string
+          ip_address: string
+          last_seen: string
+          os_type: string | null
+          os_version: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hostname: string
+          id?: string
+          ip_address: string
+          last_seen?: string
+          os_type?: string | null
+          os_version?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hostname?: string
+          id?: string
+          ip_address?: string
+          last_seen?: string
+          os_type?: string | null
+          os_version?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
