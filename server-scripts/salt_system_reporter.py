@@ -11,11 +11,42 @@ import requests
 import platform
 import psutil
 import re
+import os
+import sys
 from typing import Dict, List, Any
 
-# Configuration
-API_ENDPOINT = "https://rqnqmvyfgjmnhniupqnr.supabase.co/functions/v1/system-data-receiver"
-API_KEY = "YOUR_API_KEY_HERE"  # Generate a secure random key and add it as SALT_API_KEY secret in Lovable
+# Configuration - Can be overridden by config file
+CONFIG_FILE = '/etc/system_reporter.conf'
+DEFAULT_API_ENDPOINT = "https://rqnqmvyfgjmnhniupqnr.supabase.co/functions/v1/system-data-receiver"
+DEFAULT_API_KEY = "YOUR_API_KEY_HERE"  # Generate a secure random key and add it as SALT_API_KEY secret in Lovable
+
+def load_config():
+    """Load configuration from file or use defaults"""
+    config = {
+        'api_endpoint': DEFAULT_API_ENDPOINT,
+        'api_key': DEFAULT_API_KEY
+    }
+    
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if '=' in line and not line.startswith('#'):
+                        key, value = line.split('=', 1)
+                        if key == 'API_ENDPOINT':
+                            config['api_endpoint'] = value
+                        elif key == 'API_KEY':
+                            config['api_key'] = value
+        except Exception as e:
+            print(f"Warning: Could not read config file: {e}")
+    
+    return config
+
+# Load configuration
+CONFIG = load_config()
+API_ENDPOINT = CONFIG['api_endpoint']
+API_KEY = CONFIG['api_key']
 
 def run_command(cmd: str) -> str:
     """Execute shell command and return output"""
@@ -185,6 +216,13 @@ def send_to_api(data: Dict[str, Any]) -> bool:
 
 def main():
     """Main execution function"""
+    # Check for --verify flag
+    if len(sys.argv) > 1 and sys.argv[1] == '--verify':
+        print(f"System Reporter v1.0")
+        print(f"API Endpoint: {API_ENDPOINT}")
+        print(f"API Key: {'*' * (len(API_KEY) - 4) + API_KEY[-4:]}")
+        return 0
+    
     print("Collecting system information...")
     
     try:
