@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Search, LogOut, User } from "lucide-react";
+import { Shield, Search, LogOut, User, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -75,6 +75,10 @@ const Index = () => {
                   {user?.email}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/setup')}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Setup & Installation
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={signOut} className="text-destructive">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
