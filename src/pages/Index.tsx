@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Shield, Activity } from "lucide-react";
+import { Shield, Activity, Settings } from "lucide-react";
 import ServiceStatusCard from "@/components/ServiceStatusCard";
 import SystemUpdateCard from "@/components/SystemUpdateCard";
 import ApplicationUpdatesCard from "@/components/ApplicationUpdatesCard";
+import SystemConfigModal from "@/components/SystemConfigModal";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [lastChecked, setLastChecked] = useState(new Date().toLocaleString());
+  const [configModalOpen, setConfigModalOpen] = useState(false);
 
   // Mock data - in production, this would come from backend API
   const mockApplications = [
@@ -35,14 +38,20 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Shield className="h-6 w-6 text-primary" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Shield className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Salt Stack Monitor</h1>
+                <p className="text-sm text-muted-foreground">System & Security Status Dashboard</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Salt Stack Monitor</h1>
-              <p className="text-sm text-muted-foreground">System & Security Status Dashboard</p>
-            </div>
+            <Button onClick={() => setConfigModalOpen(true)} variant="outline" className="gap-2">
+              <Settings className="h-4 w-4" />
+              System Config
+            </Button>
           </div>
         </div>
       </header>
@@ -117,6 +126,8 @@ const Index = () => {
           <ApplicationUpdatesCard applications={mockApplications} />
         </section>
       </main>
+
+      <SystemConfigModal open={configModalOpen} onOpenChange={setConfigModalOpen} />
     </div>
   );
 };
