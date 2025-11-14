@@ -75,6 +75,10 @@ const Index = () => {
                   {user?.email}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/salt')}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Salt Management
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/setup')}>
                   <Settings className="h-4 w-4 mr-2" />
                   Setup & Installation
