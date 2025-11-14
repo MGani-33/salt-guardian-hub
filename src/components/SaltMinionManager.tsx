@@ -27,12 +27,12 @@ const SaltMinionManager = () => {
 
   const fetchMinions = async () => {
     const { data, error } = await supabase
-      .from("salt_minion_keys")
+      .from("salt_minion_keys" as any)
       .select("*")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setMinions(data);
+      setMinions(data as any[]);
     }
   };
 
