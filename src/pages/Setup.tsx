@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Copy, Check, Download, ArrowLeft } from "lucide-react";
+import { Shield, Copy, Check, Download, ArrowLeft, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,9 +11,32 @@ import { toast } from "sonner";
 const Setup = () => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const API_ENDPOINT = "https://rqnqmvyfgjmnhniupqnr.supabase.co/functions/v1/system-data-receiver";
   const API_KEY_PLACEHOLDER = "REPLACE_WITH_YOUR_SALT_API_KEY";
+
+  const fetchApiKey = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-salt-api-key');
+      if (error) throw error;
+      if (data?.apiKey) {
+        setApiKey(data.apiKey);
+        toast.success("API key loaded successfully");
+      }
+    } catch (error) {
+      console.error("Error fetching API key:", error);
+      toast.error("Failed to load API key from secrets");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApiKey();
+  }, []);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -40,7 +64,7 @@ from typing import Dict, List, Any
 
 # Configuration
 API_ENDPOINT = "${API_ENDPOINT}"
-API_KEY = "${API_KEY_PLACEHOLDER}"
+API_KEY = "${apiKey || API_KEY_PLACEHOLDER}"
 
 def run_command(cmd: str) -> str:
     """Execute shell command and return output"""
@@ -322,11 +346,32 @@ echo "🔍 Verify: /usr/local/bin/salt_system_reporter.py --verify"`;
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Alert>
-                  <AlertDescription>
-                    <strong>Important:</strong> After downloading, replace <code className="bg-muted px-1 rounded">REPLACE_WITH_YOUR_SALT_API_KEY</code> with your actual SALT_API_KEY from Lovable Cloud secrets.
-                  </AlertDescription>
-                </Alert>
+                {!apiKey ? (
+                  <Alert>
+                    <AlertDescription className="flex items-center justify-between">
+                      <span>
+                        <strong>API Key:</strong> Click the button to load your SALT_API_KEY from secrets
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={fetchApiKey}
+                        disabled={loading}
+                      >
+                        {loading ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                        Load API Key
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <Alert className="border-green-500/50 bg-green-500/10">
+                    <AlertDescription className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-500" />
+                      <span className="font-medium">API Key loaded!</span>
+                      <span className="text-xs text-muted-foreground">Scripts will use your actual key</span>
+                    </AlertDescription>
+                  </Alert>
+                )}
                 
                 <div className="relative">
                   <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
@@ -479,20 +524,38 @@ sudo salt '*' state.apply system_reporter`}</code>
 
                   <div>
                     <h3 className="font-medium mb-2">Your API Configuration:</h3>
-                    <Alert className="mb-2">
-                      <AlertDescription>
-                        Replace the API key placeholder with your actual SALT_API_KEY from Lovable Cloud secrets.
-                      </AlertDescription>
-                    </Alert>
+                    {!apiKey ? (
+                      <Alert className="mb-2">
+                        <AlertDescription className="flex items-center justify-between">
+                          <span>Load your API key to see the actual configuration</span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={fetchApiKey}
+                            disabled={loading}
+                          >
+                            {loading ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                            Load API Key
+                          </Button>
+                        </AlertDescription>
+                      </Alert>
+                    ) : (
+                      <Alert className="mb-2 border-green-500/50 bg-green-500/10">
+                        <AlertDescription className="flex items-center gap-2">
+                          <Check className="h-4 w-4 text-green-500" />
+                          <span>Using your actual API key</span>
+                        </AlertDescription>
+                      </Alert>
+                    )}
                     <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
                       <code>{`API_ENDPOINT=${API_ENDPOINT}
-API_KEY=${API_KEY_PLACEHOLDER}`}</code>
+API_KEY=${apiKey || API_KEY_PLACEHOLDER}`}</code>
                     </pre>
                     <Button
                       size="sm"
                       variant="outline"
                       className="mt-2"
-                      onClick={() => copyToClipboard(`API_ENDPOINT=${API_ENDPOINT}\nAPI_KEY=${API_KEY_PLACEHOLDER}`, "API config")}
+                      onClick={() => copyToClipboard(`API_ENDPOINT=${API_ENDPOINT}\nAPI_KEY=${apiKey || API_KEY_PLACEHOLDER}`, "API config")}
                     >
                       {copied === "API config" ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                       Copy Configuration
