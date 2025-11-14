@@ -15,7 +15,7 @@ export interface System {
 
 export const useSystems = (filters?: { status?: string; search?: string }) => {
   return useQuery({
-    queryKey: ["systems", filters],
+    queryKey: ["systems", filters?.status, filters?.search],
     queryFn: async () => {
       let query = supabase.from("systems").select("*").order("hostname");
 
