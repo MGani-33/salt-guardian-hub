@@ -2,3 +2,6 @@ project_id = "rqnqmvyfgjmnhniupqnr"
 
 [functions.system-data-receiver]
 verify_jwt = false
+
+[functions.salt-operations]
+verify_jwt = true
