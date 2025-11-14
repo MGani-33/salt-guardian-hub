@@ -24,6 +24,7 @@ const SaltMinionManager = () => {
   const [command, setCommand] = useState("");
   const [executing, setExecuting] = useState(false);
   const [commandOutput, setCommandOutput] = useState("");
+  const [quickAddMinion, setQuickAddMinion] = useState("");
 
   const fetchMinions = async () => {
     const { data, error } = await supabase
@@ -36,20 +37,43 @@ const SaltMinionManager = () => {
     }
   };
 
-  const refreshKeys = async () => {
-    setLoading(true);
+  const addMinionManually = async (minionId: string) => {
     try {
-      const { error } = await supabase.functions.invoke("salt-operations", {
-        body: { operation: "list_keys" },
-      });
+      const { error } = await supabase
+        .from("salt_minion_keys" as any)
+        .insert({
+          minion_id: minionId,
+          status: 'pending',
+        });
 
       if (error) throw error;
 
       await fetchMinions();
       
       toast({
+        title: "Minion Added",
+        description: `Minion ${minionId} added to the list`,
+      });
+    } catch (error) {
+      console.error("Error adding minion:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add minion",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const refreshKeys = async () => {
+    setLoading(true);
+    try {
+      // For now, just refresh the list from database
+      // In production, this would query the Salt Master via SSH
+      await fetchMinions();
+      
+      toast({
         title: "Refreshed",
-        description: "Minion keys refreshed successfully",
+        description: "Minion list refreshed",
       });
     } catch (error) {
       console.error("Error refreshing keys:", error);
@@ -164,6 +188,47 @@ const SaltMinionManager = () => {
 
   return (
     <div className="space-y-6">
+      {/* Quick Add Minion Card */}
+      <Card className="bg-primary/5 border-primary/20">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Label htmlFor="quick-add-minion" className="text-sm font-medium mb-2 block">
+                Add Minion Manually
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="quick-add-minion"
+                  placeholder="Enter minion ID (e.g., zerodha-admin)"
+                  value={quickAddMinion}
+                  onChange={(e) => setQuickAddMinion(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && quickAddMinion) {
+                      addMinionManually(quickAddMinion);
+                      setQuickAddMinion('');
+                    }
+                  }}
+                />
+                <Button 
+                  onClick={() => {
+                    if (quickAddMinion) {
+                      addMinionManually(quickAddMinion);
+                      setQuickAddMinion('');
+                    }
+                  }}
+                  disabled={!quickAddMinion}
+                >
+                  Add Minion
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Add minions from your Salt Master to manage them here
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -249,18 +314,18 @@ const SaltMinionManager = () => {
       <CardContent className="space-y-4">
         <div className="grid gap-4">
           <div className="space-y-2">
-            <Label htmlFor="target-minion">Target Minion</Label>
+            <Label htmlFor="cmd-target-minion">Target Minion</Label>
             <Input
-              id="target-minion"
+              id="cmd-target-minion"
               placeholder="minion-id or '*' for all"
               value={targetMinion}
               onChange={(e) => setTargetMinion(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="command">Command</Label>
+            <Label htmlFor="salt-command">Salt Command</Label>
             <Input
-              id="command"
+              id="salt-command"
               placeholder="e.g., cmd.run 'apt-get update'"
               value={command}
               onChange={(e) => setCommand(e.target.value)}
