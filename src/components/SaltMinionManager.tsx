@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, RefreshCw, Server, Play } from "lucide-react";
+import { CheckCircle2, RefreshCw, Server, Play, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,8 @@ interface MinionKey {
   minion_id: string;
   status: string;
   created_at: string;
+  fingerprint?: string;
+  accepted_at?: string;
 }
 
 const SaltMinionManager = () => {
@@ -253,50 +255,91 @@ const SaltMinionManager = () => {
       </CardHeader>
       <CardContent>
         {minions.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No minions found. Install salt-minion on your servers and they will appear here.
+          <div className="text-center py-8">
+            <Server className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Minions Yet</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Add your first minion using the form above
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Example: zerodha-admin, web-server-01, etc.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {minions.map((minion) => (
-              <div
-                key={minion.id}
-                className="flex items-center justify-between p-3 border rounded-lg bg-card"
-              >
-                <div className="flex items-center gap-3">
-                  <Server className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">{minion.minion_id}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(minion.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {minion.status === "pending" ? (
-                    <>
-                      <Badge variant="outline" className="bg-warning/10 text-warning border-warning">
-                        Pending
-                      </Badge>
-                      <Button
-                        size="sm"
-                        onClick={() => acceptKey(minion.minion_id)}
-                        disabled={accepting === minion.minion_id}
-                        className="gap-2"
-                      >
-                        <CheckCircle2 className="h-4 w-4" />
-                        {accepting === minion.minion_id ? "Accepting..." : "Accept"}
-                      </Button>
-                    </>
-                  ) : (
-                    <Badge variant="outline" className="bg-success/10 text-success border-success">
-                      <CheckCircle2 className="h-4 w-4 mr-1" />
-                      Accepted
-                    </Badge>
-                  )}
+            {/* Show pending minions first */}
+            {minions.filter(m => m.status === "pending").length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-warning mb-2 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  Pending Acceptance ({minions.filter(m => m.status === "pending").length})
+                </h3>
+                <div className="space-y-2">
+                  {minions.filter(m => m.status === "pending").map((minion) => (
+                    <div
+                      key={minion.id}
+                      className="flex items-center justify-between p-3 border border-warning/30 rounded-lg bg-warning/5"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Server className="h-5 w-5 text-warning" />
+                        <div>
+                          <p className="font-medium">{minion.minion_id}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Added {new Date(minion.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="bg-warning/10 text-warning border-warning">
+                          Waiting
+                        </Badge>
+                        <Button
+                          size="sm"
+                          onClick={() => acceptKey(minion.minion_id)}
+                          disabled={accepting === minion.minion_id}
+                          className="gap-2"
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          {accepting === minion.minion_id ? "Accepting..." : "Accept"}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Show accepted minions */}
+            {minions.filter(m => m.status === "accepted").length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-success mb-2 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Accepted Minions ({minions.filter(m => m.status === "accepted").length})
+                </h3>
+                <div className="space-y-2">
+                  {minions.filter(m => m.status === "accepted").map((minion) => (
+                    <div
+                      key={minion.id}
+                      className="flex items-center justify-between p-3 border border-success/30 rounded-lg bg-success/5"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Server className="h-5 w-5 text-success" />
+                        <div>
+                          <p className="font-medium">{minion.minion_id}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Accepted {minion.accepted_at ? new Date(minion.accepted_at).toLocaleString() : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="bg-success/10 text-success border-success">
+                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                        Active
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
