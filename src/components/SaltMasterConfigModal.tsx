@@ -35,7 +35,7 @@ const SaltMasterConfigModal = ({ open, onOpenChange, onConfigured }: SaltMasterC
       if (!user) throw new Error("Not authenticated");
 
       const { error } = await supabase
-        .from("salt_master_config")
+        .from("salt_master_config" as any)
         .upsert({
           user_id: user.id,
           master_ip: masterIp,
